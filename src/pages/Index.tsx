@@ -39,10 +39,10 @@ const Index: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
               <h2 className="text-3xl font-bold gradient-text">
-                Create Your Product Development Prompt
+                Create Your Custom AI Prompt
               </h2>
               <p className="mt-2 text-lg text-muted-foreground">
-                Fill in the details below to generate a customized prompt
+                Fill in the details below to generate a tailored prompt for any purpose
               </p>
             </div>
 
@@ -73,29 +73,29 @@ const Index: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold gradient-text">
-                Why Use Our Prompt Generator?
+                Why Use Our AI Prompt Generator?
               </h2>
               <p className="mt-2 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Get expertly crafted prompts for your product development journey
+                Get expertly crafted prompts for any purpose - from business to education and beyond
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 {
-                  title: "MVP Planning",
+                  title: "Save Time",
                   description:
-                    "Generate prompts that help you focus on essential features for your minimum viable product.",
+                    "Generate effective prompts in seconds rather than spending time figuring out how to word your requests.",
                 },
                 {
-                  title: "Feature Expansion",
+                  title: "Better Results",
                   description:
-                    "Plan your product roadmap with prompts designed to identify high-impact post-MVP features.",
+                    "Well-structured prompts get better AI responses, helping you achieve your goals faster.",
                 },
                 {
-                  title: "User-Centered Design",
+                  title: "Multiple Categories",
                   description:
-                    "Create prompts that put your users first and ensure you're building what they truly need.",
+                    "From product development to content creation, education, business, and personal growth.",
                 },
               ].map((feature, index) => (
                 <div

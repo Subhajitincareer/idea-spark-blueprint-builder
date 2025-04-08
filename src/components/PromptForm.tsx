@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,13 +8,14 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { getOutputTypes, toneOptions, industryOptions, generatePrompt } from "./PromptTemplates";
+import { getOutputTypes, toneOptions, industryOptions } from "./PromptTemplates";
 
 interface PromptFormProps {
   onPromptGenerate: (prompt: string) => void;
@@ -49,15 +50,38 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
   const [audience, setAudience] = useState("general");
   const [language, setLanguage] = useState("English");
   const [industry, setIndustry] = useState("technology");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const outputTypes = getOutputTypes();
+  const allOutputTypes = getOutputTypes();
+  
+  // Group output types by category
+  const outputTypesByCategory = useMemo(() => {
+    const grouped = {
+      all: allOutputTypes,
+      product: allOutputTypes.filter(type => type.category === "product"),
+      content: allOutputTypes.filter(type => type.category === "content"),
+      business: allOutputTypes.filter(type => type.category === "business"),
+      education: allOutputTypes.filter(type => type.category === "education"),
+      personal: allOutputTypes.filter(type => type.category === "personal")
+    };
+    return grouped;
+  }, [allOutputTypes]);
+
+  // Filtered output types based on selected category
+  const filteredOutputTypes = useMemo(() => {
+    return selectedCategory === "all" 
+      ? allOutputTypes 
+      : outputTypesByCategory[selectedCategory as keyof typeof outputTypesByCategory];
+  }, [selectedCategory, outputTypesByCategory, allOutputTypes]);
   
   // Initialize the output type to the first available option when the component mounts
+  // or when the category changes
   React.useEffect(() => {
-    if (outputTypes.length > 0 && !outputType) {
-      setOutputType(outputTypes[0].id);
+    if (filteredOutputTypes.length > 0 && 
+        (!outputType || !filteredOutputTypes.some(type => type.id === outputType))) {
+      setOutputType(filteredOutputTypes[0].id);
     }
-  }, [outputTypes, outputType]);
+  }, [filteredOutputTypes, outputType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,12 +96,23 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
     
     // Simulate a brief loading state to enhance UX
     setTimeout(() => {
-      // Updated to include the new industry parameter
-      const generatedPrompt = generatePrompt(topic, tone, outputType, audience, language, industry);
-      onPromptGenerate(generatedPrompt);
-      setIsGenerating(false);
+      // Get the current output type from the PromptTemplates
+      const generatedPrompt = import("./PromptTemplates").then(module => {
+        const prompt = module.generatePrompt(topic, tone, outputType, audience, language, industry);
+        onPromptGenerate(prompt);
+        setIsGenerating(false);
+      });
     }, 800);
   };
+
+  const categoryOptions = [
+    { id: "all", name: "All Categories" },
+    { id: "product", name: "Product Development" },
+    { id: "content", name: "Content Creation" },
+    { id: "business", name: "Business" },
+    { id: "education", name: "Education" },
+    { id: "personal", name: "Personal Development" }
+  ];
 
   return (
     <Card id="prompt-form" className="w-full max-w-3xl mx-auto shadow-lg animate-fade-in">
@@ -89,15 +124,33 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="topic">What are you building?</Label>
+            <Label htmlFor="topic">What's your topic?</Label>
             <Input
               id="topic"
-              placeholder="e.g., task management app, e-commerce platform, content creator tool"
+              placeholder="e.g., task management app, climate change, marketing strategy"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               className="focus-ring"
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Prompt Category</Label>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger id="category" className="focus-ring">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {categoryOptions.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -126,13 +179,34 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
                   <SelectValue placeholder="Select output type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup>
-                    {outputTypes.map((type) => (
-                      <SelectItem key={type.id} value={type.id}>
-                        {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
+                  {selectedCategory === "all" ? (
+                    Object.entries(outputTypesByCategory)
+                      .filter(([category]) => category !== "all")
+                      .map(([category, types]) => (
+                        <SelectGroup key={category}>
+                          <SelectLabel className="capitalize">
+                            {category === "product" ? "Product Development" : 
+                             category === "content" ? "Content Creation" :
+                             category === "business" ? "Business" :
+                             category === "education" ? "Education" :
+                             category === "personal" ? "Personal Development" : category}
+                          </SelectLabel>
+                          {types.map((type) => (
+                            <SelectItem key={type.id} value={type.id}>
+                              {type.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))
+                  ) : (
+                    <SelectGroup>
+                      {filteredOutputTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.id}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
                 </SelectContent>
               </Select>
             </div>
