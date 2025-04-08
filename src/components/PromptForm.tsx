@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { getOutputTypes, toneOptions, industryOptions } from "./PromptTemplates";
+import { getOutputTypes, toneOptions, industryOptions, aiModelOptions } from "./PromptTemplates";
 
 interface PromptFormProps {
   onPromptGenerate: (prompt: string) => void;
@@ -28,7 +29,9 @@ const audienceOptions = [
   "developers",
   "executives",
   "marketers",
-  "educators"
+  "educators",
+  "artists",
+  "researchers"
 ];
 
 const languageOptions = [
@@ -50,6 +53,7 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
   const [language, setLanguage] = useState("English");
   const [industry, setIndustry] = useState("technology");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [aiModel, setAiModel] = useState("chatgpt");
 
   const allOutputTypes = getOutputTypes();
   
@@ -62,7 +66,11 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
       business: allOutputTypes.filter(type => type.category === "business"),
       education: allOutputTypes.filter(type => type.category === "education"),
       personal: allOutputTypes.filter(type => type.category === "personal"),
-      technical: allOutputTypes.filter(type => type.category === "technical")
+      technical: allOutputTypes.filter(type => type.category === "technical"),
+      art: allOutputTypes.filter(type => type.category === "art"),
+      coding: allOutputTypes.filter(type => type.category === "coding"),
+      learning: allOutputTypes.filter(type => type.category === "learning"),
+      productivity: allOutputTypes.filter(type => type.category === "productivity")
     };
     return grouped;
   }, [allOutputTypes]);
@@ -83,6 +91,27 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
     }
   }, [filteredOutputTypes, outputType]);
 
+  // Determine if the current outputType is for image generation
+  const isImagePrompt = useMemo(() => {
+    return outputType && allOutputTypes.find(type => type.id === outputType)?.category === "art";
+  }, [outputType, allOutputTypes]);
+
+  // Filter AI models based on whether we're working with an image prompt
+  const filteredAiModels = useMemo(() => {
+    if (isImagePrompt) {
+      return aiModelOptions.filter(model => model.category === "image");
+    } 
+    return aiModelOptions.filter(model => model.category === "text");
+  }, [isImagePrompt]);
+
+  // Update AI model when switching between image and text prompts
+  React.useEffect(() => {
+    if (filteredAiModels.length > 0 && 
+        (!aiModel || !filteredAiModels.some(model => model.id === aiModel))) {
+      setAiModel(filteredAiModels[0].id);
+    }
+  }, [filteredAiModels, aiModel]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -98,7 +127,7 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
     setTimeout(() => {
       // Get the current output type from the PromptTemplates
       const generatedPrompt = import("./PromptTemplates").then(module => {
-        const prompt = module.generatePrompt(topic, tone, outputType, audience, language, industry);
+        const prompt = module.generatePrompt(topic, tone, outputType, audience, language, industry, aiModel);
         onPromptGenerate(prompt);
         setIsGenerating(false);
       });
@@ -112,7 +141,11 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
     { id: "business", name: "Business" },
     { id: "education", name: "Education" },
     { id: "personal", name: "Personal Development" },
-    { id: "technical", name: "Technical" }
+    { id: "technical", name: "Technical" },
+    { id: "art", name: "AI Art Generation" },
+    { id: "coding", name: "Coding Assistance" },
+    { id: "learning", name: "Learning & Research" },
+    { id: "productivity", name: "Productivity & Planning" }
   ];
 
   return (
@@ -128,7 +161,7 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
             <Label htmlFor="topic">What's your topic?</Label>
             <Input
               id="topic"
-              placeholder="e.g., task management app, climate change, marketing strategy"
+              placeholder="e.g., task management app, fantasy portrait, marketing strategy"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               className="focus-ring"
@@ -156,24 +189,6 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="tone">Tone</Label>
-              <Select value={tone} onValueChange={setTone}>
-                <SelectTrigger id="tone" className="focus-ring">
-                  <SelectValue placeholder="Select tone" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {toneOptions.map((toneOption) => (
-                      <SelectItem key={toneOption} value={toneOption}>
-                        {toneOption.charAt(0).toUpperCase() + toneOption.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="outputType">Output Type</Label>
               <Select value={outputType} onValueChange={setOutputType}>
                 <SelectTrigger id="outputType" className="focus-ring">
@@ -190,7 +205,12 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
                              category === "content" ? "Content Creation" :
                              category === "business" ? "Business" :
                              category === "education" ? "Education" :
-                             category === "personal" ? "Personal Development" : category}
+                             category === "personal" ? "Personal Development" : 
+                             category === "technical" ? "Technical" :
+                             category === "art" ? "AI Art Generation" :
+                             category === "coding" ? "Coding Assistance" :
+                             category === "learning" ? "Learning & Research" :
+                             category === "productivity" ? "Productivity & Planning" : category}
                           </SelectLabel>
                           {types.map((type) => (
                             <SelectItem key={type.id} value={type.id}>
@@ -211,6 +231,48 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tone">Tone</Label>
+              <Select value={tone} onValueChange={setTone}>
+                <SelectTrigger id="tone" className="focus-ring">
+                  <SelectValue placeholder="Select tone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {toneOptions.map((toneOption) => (
+                      <SelectItem key={toneOption} value={toneOption}>
+                        {toneOption.charAt(0).toUpperCase() + toneOption.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* AI Model Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="aiModel">Target AI Model</Label>
+            <Select value={aiModel} onValueChange={setAiModel}>
+              <SelectTrigger id="aiModel" className="focus-ring">
+                <SelectValue placeholder="Select AI model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {filteredAiModels.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isImagePrompt 
+                ? "Choose the AI image generator you'll use" 
+                : "Select the AI model you'll use this prompt with"}
+            </p>
           </div>
 
           {/* Advanced Options Collapsible */}
