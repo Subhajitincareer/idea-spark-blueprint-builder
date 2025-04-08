@@ -32,13 +32,13 @@ const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   setIsAdvancedOpen,
   audience,
   setAudience,
-  audienceOptions,
+  audienceOptions = [], // ✅ fallback if undefined
   language,
   setLanguage,
-  languageOptions,
+  languageOptions = [],
   industry,
   setIndustry,
-  industryOptions,
+  industryOptions = [],
 }) => {
   return (
     <Collapsible

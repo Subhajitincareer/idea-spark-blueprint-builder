@@ -26,7 +26,7 @@ const ToneSelector: React.FC<ToneSelectorProps> = ({ tone, setTone, toneOptions 
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {toneOptions.map((toneOption) => (
+            {(toneOptions ?? []).map((toneOption) => (
               <SelectItem key={toneOption} value={toneOption}>
                 {toneOption.charAt(0).toUpperCase() + toneOption.slice(1)}
               </SelectItem>

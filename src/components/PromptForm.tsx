@@ -8,8 +8,9 @@ import {
   industryOptions,
   toneOptions,
   getOutputTypes,
-  aiModelOptions
+ 
 } from "./prompt-templates";
+import   {aiModelOptions} from "./prompt-templates/ai-model-options";
 import TopicInput from "./prompt-form/TopicInput";
 import CategorySelector from "./prompt-form/CategorySelector";
 import OutputTypeSelector from "./prompt-form/OutputTypeSelector";

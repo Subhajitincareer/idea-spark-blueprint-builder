@@ -18,13 +18,13 @@ interface CategoryOption {
 interface CategorySelectorProps {
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
-  categoryOptions: CategoryOption[];
+  categoryOptions?: CategoryOption[];
 }
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({ 
   selectedCategory, 
   setSelectedCategory, 
-  categoryOptions 
+  categoryOptions = [],
 }) => {
   return (
     <div className="space-y-2">
