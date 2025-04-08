@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +61,8 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
       content: allOutputTypes.filter(type => type.category === "content"),
       business: allOutputTypes.filter(type => type.category === "business"),
       education: allOutputTypes.filter(type => type.category === "education"),
-      personal: allOutputTypes.filter(type => type.category === "personal")
+      personal: allOutputTypes.filter(type => type.category === "personal"),
+      technical: allOutputTypes.filter(type => type.category === "technical")
     };
     return grouped;
   }, [allOutputTypes]);
@@ -111,7 +111,8 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
     { id: "content", name: "Content Creation" },
     { id: "business", name: "Business" },
     { id: "education", name: "Education" },
-    { id: "personal", name: "Personal Development" }
+    { id: "personal", name: "Personal Development" },
+    { id: "technical", name: "Technical" }
   ];
 
   return (
