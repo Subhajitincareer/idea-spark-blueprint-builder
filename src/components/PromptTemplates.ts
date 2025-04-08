@@ -1,3 +1,4 @@
+
 export const toneOptions = [
   "professional",
   "casual",
@@ -5,6 +6,18 @@ export const toneOptions = [
   "enthusiastic",
   "formal",
   "technical"
+];
+
+export const industryOptions = [
+  "technology",
+  "healthcare",
+  "education",
+  "finance",
+  "retail",
+  "manufacturing",
+  "entertainment",
+  "marketing",
+  "non-profit"
 ];
 
 export const getOutputTypes = () => [
@@ -20,13 +33,14 @@ export const generatePrompt = (
   tone: string, 
   outputType: string,
   audience: string = "general",
-  language: string = "English"
+  language: string = "English",
+  industry: string = "technology"
 ) => {
   let promptTemplate = "";
   
   switch (outputType) {
     case "mvp":
-      promptTemplate = `As a product development expert, help me create an MVP for a ${topic}. 
+      promptTemplate = `As a product development expert in the ${industry} industry, help me create an MVP for a ${topic}. 
       
 Use a ${tone} tone and focus on the essential features that would make this product viable. 
 
@@ -41,7 +55,7 @@ This information should be tailored for a ${audience} audience and written in ${
       break;
       
     case "roadmap":
-      promptTemplate = `As a product strategist with expertise in ${topic}, create a comprehensive product roadmap.
+      promptTemplate = `As a product strategist with expertise in ${topic} and the ${industry} industry, create a comprehensive product roadmap.
 
 Use a ${tone} tone and outline the development stages from MVP to mature product.
 
@@ -57,7 +71,7 @@ This roadmap should be appropriate for a ${audience} audience and written in ${l
       break;
       
     case "userStories":
-      promptTemplate = `As a user experience expert for ${topic} products, create detailed user stories.
+      promptTemplate = `As a user experience expert for ${topic} products in the ${industry} industry, create detailed user stories.
 
 Use a ${tone} tone and focus on the key user journeys.
 
@@ -72,7 +86,7 @@ These user stories should be appropriate for a ${audience} audience and written 
       break;
       
     case "marketingCopy":
-      promptTemplate = `As a marketing specialist for ${topic} products, create compelling marketing copy.
+      promptTemplate = `As a marketing specialist for ${topic} products in the ${industry} industry, create compelling marketing copy.
 
 Use a ${tone} tone that will resonate with potential customers.
 
@@ -87,7 +101,7 @@ This marketing copy should be targeted at a ${audience} audience and written in 
       break;
       
     case "pitchDeck":
-      promptTemplate = `As a startup advisor specializing in ${topic}, create an outline for a pitch deck.
+      promptTemplate = `As a startup advisor specializing in ${topic} and the ${industry} industry, create an outline for a pitch deck.
 
 Use a ${tone} tone that will appeal to investors and stakeholders.
 
@@ -108,7 +122,7 @@ This pitch deck outline should be appropriate for a ${audience} audience and wri
       break;
       
     default:
-      promptTemplate = `As a ${tone} expert in ${topic}, create a detailed analysis and recommendations.
+      promptTemplate = `As a ${tone} expert in ${topic} in the ${industry} industry, create a detailed analysis and recommendations.
 
 Please provide:
 1. Overview of the current state

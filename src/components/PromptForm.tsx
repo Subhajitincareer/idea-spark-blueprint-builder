@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { getOutputTypes, toneOptions, generatePrompt } from "./PromptTemplates";
+import { getOutputTypes, toneOptions, industryOptions, generatePrompt } from "./PromptTemplates";
 
 interface PromptFormProps {
   onPromptGenerate: (prompt: string) => void;
@@ -48,6 +48,7 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [audience, setAudience] = useState("general");
   const [language, setLanguage] = useState("English");
+  const [industry, setIndustry] = useState("technology");
 
   const outputTypes = getOutputTypes();
 
@@ -64,8 +65,8 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
     
     // Simulate a brief loading state to enhance UX
     setTimeout(() => {
-      // Updated to include the new parameters (audience, language)
-      const generatedPrompt = generatePrompt(topic, tone, outputType, audience, language);
+      // Updated to include the new industry parameter
+      const generatedPrompt = generatePrompt(topic, tone, outputType, audience, language, industry);
       onPromptGenerate(generatedPrompt);
       setIsGenerating(false);
     }, 800);
@@ -182,6 +183,24 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="industry">Industry</Label>
+                <Select value={industry} onValueChange={setIndustry}>
+                  <SelectTrigger id="industry" className="focus-ring">
+                    <SelectValue placeholder="Select industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {industryOptions.map((industryOption) => (
+                        <SelectItem key={industryOption} value={industryOption}>
+                          {industryOption.charAt(0).toUpperCase() + industryOption.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             </CollapsibleContent>
           </Collapsible>
