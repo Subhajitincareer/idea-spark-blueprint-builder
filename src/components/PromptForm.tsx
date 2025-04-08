@@ -43,7 +43,7 @@ const languageOptions = [
 const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState("professional");
-  const [outputType, setOutputType] = useState("mvp");
+  const [outputType, setOutputType] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [audience, setAudience] = useState("general");
@@ -51,6 +51,13 @@ const PromptForm: React.FC<PromptFormProps> = ({ onPromptGenerate }) => {
   const [industry, setIndustry] = useState("technology");
 
   const outputTypes = getOutputTypes();
+  
+  // Initialize the output type to the first available option when the component mounts
+  React.useEffect(() => {
+    if (outputTypes.length > 0 && !outputType) {
+      setOutputType(outputTypes[0].id);
+    }
+  }, [outputTypes, outputType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
